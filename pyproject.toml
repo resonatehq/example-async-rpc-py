@@ -1,7 +1,18 @@
 [project]
-name = "resonate-is-async-rpc"
+name = "async_rpc"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "flask>=3.1.0",
+    "resonate-sdk==0.4.3",
+]
+
+[project.scripts]
+foo = "async_rpc.service_foo:main"
+bar = "async_rpc.service_bar:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
