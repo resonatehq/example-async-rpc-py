@@ -100,3 +100,11 @@ def baz():
     yield ctx.sleep(5)
     return "Hello from baz!"
 ```
+
+## RFCs vs RFIs
+
+RFI stands for Remote Function Invocation.
+
+With Resonate a Remote Function Invocation returns a Durable Promise. You don't have to block the rest of the function on the result of the function that was invoked. You can yield the result at any point later in the execution. However, yielding the result of the promise (yielding the result of the function that was invoked) does block execution until the result is available. In other words, RFI is an asynchronous API.
+
+RFC stands for Remote Function Call, it is effectively an RFI but with syntax sugar, and yields the result of the function that was invoked. In other words, it is a synchronous API.
