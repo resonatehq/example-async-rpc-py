@@ -2,7 +2,7 @@ from resonate.task_sources.poller import Poller
 from resonate.stores.remote import RemoteStore
 from resonate.resonate import Resonate
 from resonate.targets import poll
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import uuid
 
 
@@ -14,45 +14,37 @@ resonate = Resonate(
 
 
 @resonate.register
-def foo_rfi(ctx):
+def foo(ctx, behavior):
     try:
-        print("running function foo_rfi")
-        promise = yield ctx.rfi("bar").options(send_to=poll("service-bar"))
-        result = yield promise
-        return result
+        print("running function foo")
+        if behavior == "chain":
+            print("behavior = chain, making a sync call to bar...")
+            result = yield ctx.rfc("bar", behavior).options(send_to=poll("service-bar"))
+            print(result)
+            return f"{result} & Hello from foo!"
+        elif behavior == "fan":
+            print("behavior = fan, making async calls to bar and baz...")
+            promise_bar = yield ctx.rfi("bar", behavior).options(send_to=poll("service-bar"))
+            promise_baz = yield ctx.rfi("baz").options(send_to=poll("service-baz"))
+            result_bar = yield promise_bar
+            print(result_bar)
+            result_baz = yield promise_baz
+            print(result_baz)
+            return f"{result_bar} & {result_baz} & Hello from foo!"
+        else:
+            raise Exception("Invalid behavior")
     except Exception as e:
         print(e)
         raise
 
 
-@resonate.register
-def foo_rfc(ctx):
+@app.route("/foo", methods=["POST"])
+def handle_foo():
     try:
-        print("running function foo_rfc")
-        result = yield ctx.rfc("bar").options(send_to=poll("service-bar"))
-        return result
-    except Exception as e:
-        print(e)
-        raise
-
-
-@app.route("/foo_rfi", methods=["GET"])
-def handle_foo_rfi():
-    try:
+        data = request.get_json()
+        behavior = data["behavior"]
         promise_id = str(uuid.uuid4())
-        handle = foo_rfi.run(promise_id)
-        message = handle.result()
-        return jsonify({"message": message}), 200
-    except Exception as e:
-        print(e)
-        return jsonify({"error": str(e)}), 500
-
-
-@app.route("/foo_rfc", methods=["GET"])
-def handle_foo_rfc():
-    try:
-        promise_id = str(uuid.uuid4())
-        handle = foo_rfc.run(promise_id)
+        handle = foo.run(promise_id, behavior)
         message = handle.result()
         return jsonify({"message": message}), 200
     except Exception as e:
