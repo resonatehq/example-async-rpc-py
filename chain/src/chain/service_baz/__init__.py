@@ -10,7 +10,7 @@ resonate = Resonate(
 
 
 @resonate.register
-def baz(ctx):
+def baz(_):
     try:
         print("running function baz")
         return 1

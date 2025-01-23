@@ -14,7 +14,9 @@ resonate = Resonate(
 def bar(ctx):
     try:
         print("running function bar")
-        result = yield ctx.rfc("baz").options(send_to=poll("service-baz"))
+        promise = yield ctx.rfc("baz").options(send_to=poll("service-baz"))
+        # yield ctx.sleep(10)
+        result = yield promise
         return result + 1
     except Exception as e:
         print(e)
