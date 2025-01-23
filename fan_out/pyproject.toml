@@ -1,0 +1,19 @@
+[project]
+name = "fan_out"
+version = "0.1.0"
+description = "Fan-out request flow Async RPC example app."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "flask>=3.1.0",
+    "resonate-sdk==0.4.6",
+]
+
+[project.scripts]
+foo = "fan_out.service_foo:main"
+bar = "fan_out.service_bar:main"
+baz = "fan_out.service_baz:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

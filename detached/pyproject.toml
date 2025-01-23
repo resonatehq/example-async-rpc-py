@@ -1,0 +1,24 @@
+[project]
+name = "detached"
+version = "0.1.0"
+description = "Detached request flow Async RPC example app."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "flask>=3.1.0",
+    "resonate-sdk==0.4.6",
+]
+
+[project.scripts]
+foo = "detached.service_foo:main"
+bar = "detached.service_bar:main"
+baz = "detached.service_baz:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.14.1",
+]

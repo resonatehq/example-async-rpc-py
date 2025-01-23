@@ -11,25 +11,18 @@ resonate = Resonate(
 
 
 @resonate.register
-def bar(ctx, behavior):
+def bar(ctx):
     try:
         print("running function bar")
-        if(behavior == "chain"):
-            print("behavior = chain, making a sync call to baz...")
-            result = yield ctx.rfc("baz").options(send_to=poll("service-baz"))
-            print(result)
-            return f"{result} & Hello from bar!"
-        elif(behavior == "fan"):
-            print("behavior = fan, returning...")
-            return "Hello from bar!"
-        else:
-            raise Exception("Invalid behavior")
+        result = yield ctx.rfc("baz").options(send_to=poll("service-baz"))
+        return result + 1
     except Exception as e:
         print(e)
         raise
 
+
 def main():
-    print("Service bar is running...")
+    print("service bar is running")
     Event().wait()
 
 

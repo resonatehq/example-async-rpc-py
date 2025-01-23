@@ -1,18 +1,18 @@
 [project]
-name = "async_rpc"
+name = "chain"
 version = "0.1.0"
-description = "Add your description here"
+description = "Chain request flow Async RPC example app."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "flask>=3.1.0",
-    "resonate-sdk==0.4.4",
+    "resonate-sdk==0.4.6",
 ]
 
 [project.scripts]
-foo = "async_rpc.service_foo:main"
-bar = "async_rpc.service_bar:main"
-baz = "async_rpc.service_baz:main"
+foo = "chain.service_foo:main"
+bar = "chain.service_bar:main"
+baz = "chain.service_baz:main"
 
 [build-system]
 requires = ["hatchling"]

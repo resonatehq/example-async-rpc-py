@@ -2,21 +2,6 @@ version = 1
 requires-python = ">=3.12"
 
 [[package]]
-name = "async-rpc"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "flask" },
-    { name = "resonate-sdk" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "flask", specifier = ">=3.1.0" },
-    { name = "resonate-sdk", specifier = "==0.4.4" },
-]
-
-[[package]]
 name = "blinker"
 version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -100,6 +85,21 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/2e/a3/53e7d78a6850ffdd394d7048a31a6f14e44900adedf190f9a165f6b69439/deprecated-1.2.15.tar.gz", hash = "sha256:683e561a90de76239796e6b6feac66b99030d2dd3fcf61ef996330f14bbb9b0d", size = 2977612 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1d/8f/c7f227eb42cfeaddce3eb0c96c60cbca37797fa7b34f8e1aeadf6c5c0983/Deprecated-1.2.15-py2.py3-none-any.whl", hash = "sha256:353bc4a8ac4bfc96800ddab349d89c25dec1079f65fd53acdcc1e0b975b21320", size = 9941 },
+]
+
+[[package]]
+name = "fan-out"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "flask" },
+    { name = "resonate-sdk" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "flask", specifier = ">=3.1.0" },
+    { name = "resonate-sdk", specifier = "==0.4.6" },
 ]
 
 [[package]]
@@ -323,7 +323,7 @@ wheels = [
 
 [[package]]
 name = "resonate-sdk"
-version = "0.4.4"
+version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "opentelemetry-api" },
@@ -332,9 +332,9 @@ dependencies = [
     { name = "requests" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8c/c5/511041cc90acd1ac20490228648527f64eb8fd89b3aa974cc174c7cefd8b/resonate_sdk-0.4.4.tar.gz", hash = "sha256:a6bd2c9401c176b1fc0b91de8423ec9ab620e44fd329964c286335066108b35b", size = 44404 }
+sdist = { url = "https://files.pythonhosted.org/packages/da/d6/691ea4c140f48c99b9fdeb5f743d29f5306d2c77c846ab2153314657ad08/resonate_sdk-0.4.6.tar.gz", hash = "sha256:4668058266d89836704353803c573994d4eb0c699dc0d31f39c564930a97bece", size = 44638 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/88/8d1106ecee73b077a728008d1411b5d4fca9ca376d58a7630845c0669852/resonate_sdk-0.4.4-py3-none-any.whl", hash = "sha256:627efcc02261d53a1b9172ab7b1cc8fafeae4fef9eb9b9ed591e5dc281d9fea7", size = 42078 },
+    { url = "https://files.pythonhosted.org/packages/f0/5b/78e0bd1ae3d1b7bf515a0bddfb51d22e357a0175adb2c1aa85f8fe2f7603/resonate_sdk-0.4.6-py3-none-any.whl", hash = "sha256:16e9a1ca078a9608642f2f4eeecb6276ae87afe4dc926d27d9e3d901e33461fb", size = 42163 },
 ]
 
 [[package]]

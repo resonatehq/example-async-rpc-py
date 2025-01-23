@@ -1,105 +1,26 @@
-# Resonate is also an async RPC framework
+# Resonate is also an Async RPC framework
 
-This project has a minimal service oriented architecture for the purposes of demonstrating how Resonate acts as an async RPC framework.
+This project showcases Resonate as an Async RPC framework with three different request flows.
 
-## Running the project
+- [chain](./chain/README.md)
+- [fan-out](./fan-out/README.md)
+- [detached](./detached/README.md)
+
+**chain request flow**
+
+The chain request flow has the foo service make a synchronous RPC (known by Resonate as an RFC) to the bar service, which will cause the bar service to make a synchronous RPC to the baz service.
+
+**fan-out request flow**
+
+The fan-out request flow has the foo service make two asynchronous RPCs (known by Resonate as RFIs), one to the bar service and one to the baz service, and await on the results only after making the RPCs.
+
+**dispatch request flow**
+
+The dispatch request flow has the foo service make an async call to bar and returns without waiting for a result. Bar then makes an async call to baz without waiting for a result. Baz prints the cummulative result.
+
+**Project prerequisite**
 
 This project uses [uv](https://docs.astral.sh/uv/) as the Python environment and package manager.
-
-After cloning this repo, change directory into the root of the project and run the following command:
-
-```shell
-uv sync
-```
-
-You will need 4 separate terminal windows, one for each service and one to make the cURL request.
-Run the following commands, each in their own terminal:
-
-Terminal 1
-
-```shell
-uv run foo
-```
-
-Terminal 2
-
-```shell
-uv run bar
-```
-
-Terminal 3
-
-```shell
-uv run baz
-```
-
-In terminal 4, send cURL requests with a behavior flag.
-
-Example cURL request:
-
-```shell
-curl -X POST http://127.0.0.1:5000/foo -H "Content-Type: application/json" -d '{"behavior": "chain"}'
-```
-
-The two types of behavior are:
-
-- `chain`: The `chain` flag will cause the foo service to make an synchronous RPC (known by Resonate as an RFC) to the bar service, which will cause the bar service to make a synchronous RPC to the baz service.
-
-_Abridged example code:_
-
-`foo service`:
-
-```python
-def foo():
-    result = yield ctx.rfc("bar", behavior).options(send_to=poll("service-bar"))
-    return f"{result} & Hello from foo!"
-```
-
-`bar service`:
-
-```python
-def bar():
-    result = yield ctx.rfc("baz").options(send_to=poll("service-baz"))
-    return f"{result} & Hello from bar!"
-```
-
-`baz service`:
-
-```python
-def baz():
-    yield ctx.sleep(5)
-    return "Hello from baz!"
-```
-
-- `fan`: The `fan` flag will cause the foo service to make two asynchronous RPCs (known by Resonate as RFIs), one to the bar service and one to the baz service, and await on the results only after making the RPCs.
-
-_Abridged example code:_
-
-`foo service`:
-
-```python
-def foo():
-    promise_bar = yield ctx.rfi("bar", behavior).options(send_to=poll("service-bar"))
-    promise_baz = yield ctx.rfi("baz").options(send_to=poll("service-baz"))
-    result_bar = yield promise_bar
-    result_baz = yield promise_baz
-    return f"{result_bar} & {result_baz} & Hello from foo!"
-```
-
-`bar service`:
-
-```python
-def bar():
-    return "Hello from bar!"
-```
-
-`baz service`:
-
-```python
-def baz():
-    yield ctx.sleep(5)
-    return "Hello from baz!"
-```
 
 ## RFCs vs RFIs
 

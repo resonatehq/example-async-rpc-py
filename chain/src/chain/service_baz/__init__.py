@@ -13,15 +13,14 @@ resonate = Resonate(
 def baz(ctx):
     try:
         print("running function baz")
-        yield ctx.sleep(5)
-        return "Hello from baz!"
+        return 1
     except Exception as e:
         print(e)
         raise
 
 
 def main():
-    print("Service baz is running...")
+    print("service baz is running")
     Event().wait()
 
 
