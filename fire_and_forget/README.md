@@ -1,4 +1,4 @@
-# Detached request flow Async RPC example
+# Fire-and-forget request flow Async RPC example
 
 **Note: Resonate's `detached()` API is still under development and currently only works with functions registered local to the call.**
 

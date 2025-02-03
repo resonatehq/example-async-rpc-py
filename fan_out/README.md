@@ -1,6 +1,13 @@
 # Resonate is also an async RPC framework
 
-This project has a minimal service oriented architecture for the purposes of demonstrating how Resonate acts as an async RPC framework.
+This example has a minimal service oriented architecture for the purposes of demonstrating how Resonate acts as an async RPC framework.
+
+When a cURL request is sent to the foo service, the `foo()` function sends two asynchronous RPCs (known by Resonate as RFIs)
+
+- 1 to the `bar()` function and sends a on the bar service.
+- 1 to the `baz()` function on the baz service.
+
+The `foo()` function will then yield the result of the promises from both invocations before returning.
 
 ## Running the project
 
@@ -38,73 +45,23 @@ In terminal 4, send cURL requests with a behavior flag.
 Example cURL request:
 
 ```shell
-curl -X POST http://127.0.0.1:5000/foo -H "Content-Type: application/json" -d '{"behavior": "chain"}'
+curl -X POST http://127.0.0.1:5000/foo
 ```
-
-The two types of behavior are:
-
-- `chain`: The `chain` flag will cause the foo service to make an synchronous RPC (known by Resonate as an RFC) to the bar service, which will cause the bar service to make a synchronous RPC to the baz service.
 
 _Abridged example code:_
 
-`foo service`:
-
 ```python
-def foo():
-    result = yield ctx.rfc("bar", behavior).options(send_to=poll("service-bar"))
-    return f"{result} & Hello from foo!"
+@resonate.register
+def foo(ctx):
+    try:
+        print("running function foo")
+        promise_bar = yield ctx.rfi("bar").options(send_to=poll("service-bar"))
+        promise_baz = yield ctx.rfi("baz").options(send_to=poll("service-baz"))
+        result_bar = yield promise_bar
+        result_baz = yield promise_baz
+        return result_bar + result_baz + 1
+    except Exception as e:
+        print(e)
+        raise
+
 ```
-
-`bar service`:
-
-```python
-def bar():
-    result = yield ctx.rfc("baz").options(send_to=poll("service-baz"))
-    return f"{result} & Hello from bar!"
-```
-
-`baz service`:
-
-```python
-def baz():
-    yield ctx.sleep(5)
-    return "Hello from baz!"
-```
-
-- `fan`: The `fan` flag will cause the foo service to make two asynchronous RPCs (known by Resonate as RFIs), one to the bar service and one to the baz service, and await on the results only after making the RPCs.
-
-_Abridged example code:_
-
-`foo service`:
-
-```python
-def foo():
-    promise_bar = yield ctx.rfi("bar", behavior).options(send_to=poll("service-bar"))
-    promise_baz = yield ctx.rfi("baz").options(send_to=poll("service-baz"))
-    result_bar = yield promise_bar
-    result_baz = yield promise_baz
-    return f"{result_bar} & {result_baz} & Hello from foo!"
-```
-
-`bar service`:
-
-```python
-def bar():
-    return "Hello from bar!"
-```
-
-`baz service`:
-
-```python
-def baz():
-    yield ctx.sleep(5)
-    return "Hello from baz!"
-```
-
-## RFCs vs RFIs
-
-RFI stands for Remote Function Invocation.
-
-With Resonate a Remote Function Invocation returns a Durable Promise. You don't have to block the rest of the function on the result of the function that was invoked. You can yield the result at any point later in the execution. However, yielding the result of the promise (yielding the result of the function that was invoked) does block execution until the result is available. In other words, RFI is an asynchronous API.
-
-RFC stands for Remote Function Call, it is effectively an RFI but with syntax sugar, and yields the result of the function that was invoked. In other words, it is a synchronous API.
