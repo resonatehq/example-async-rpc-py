@@ -6,6 +6,8 @@ This project showcases Resonate as an Async RPC framework with three different r
 - [fan_out](./fan_out/README.md)
 - [fire_and_forget](./fire_and_forget/README.md)
 
+To learn more about Resonate as an Async RPC, checkout the [Resonate is also an Async RPC Framework](https://resonatehqio.substack.com/p/resonate-is-also-an-async-rpc-framework) article.
+
 ## Project prerequisites
 
 This project uses [uv](https://docs.astral.sh/uv/) as the Python environment and package manager.
