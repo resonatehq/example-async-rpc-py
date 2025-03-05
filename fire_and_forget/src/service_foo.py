@@ -14,7 +14,7 @@ def foo(ctx):
     try:
         print("running function foo")
         promise_id = str(uuid.uuid4())
-        _ = yield ctx.detached(promise_id, bar, 1)
+        yield ctx.detached(promise_id, bar, 1)
         return
     except Exception as e:
         print(e)
