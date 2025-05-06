@@ -2,9 +2,9 @@
 
 This example application showcases Resonate's Async RPC capabilities with three different request flows.
 
-- [Await Chain](./await_chain/README.md)
-- [Detached Chain](./detached_chain/README.md)
-- [Fan-out Workflow](./fan_out_workflow/README.md)
+- [Await Chain](#await-chain-request-flow)
+- [Detached Chain](#detached-chain-request-flow)
+- [Fan-out Workflow](#fan-out-workflow-request-flow)
 
 To learn more about Resonate as an Async RPC, checkout the [Resonate is also an Async RPC Framework](https://resonatehqio.substack.com/p/resonate-is-also-an-async-rpc-framework) article.
 
@@ -71,7 +71,30 @@ An Application Node has two identities:
 - unique ID: this should be unique to all other application nodes, and enables unicast message passing — that is, messages targeted to this ID will only ever attempted to be sent to this ID.
 - group ID: this ID can be shared across several Application Nodes all running the same code. This enables anycast message passing — that is, the first available Application Node in the group will receive the message.
 
-## Await Chain request flow
+## Crash recovery
+
+This example application is capable of showcasing Resonate's ability to recover a Durable Call Graph after a process crash.
+That is — if you were to kill any of the services in the middle of their request flows, when a new service in the same group becomes available, that request flow will recover.
+
+Practically, a 5-10 second sleep should be added to one of the functions in the request flow to give you time to kill the process before it completes.
+
+example:
+
+```python
+def baz(_):
+    # ...
+    yield ctx.sleep(10)
+    # ...
+```
+
+Currently, the promise ids of the request flows are static — that is, the top-level promise ids of the Call Graph request flows are hard coded into the route handlers.
+This means that you can kill the gateway and the cURL request process as well and resend the cURL request to reconnect with the exact same invocation.
+
+## Request flows
+
+The following request flows each showcase a common pattern needed in distributed applications.
+
+### Await Chain request flow
 
 The Await Chain request flow is one where there is a synchronous chain of calls starting from the cURL request sent in the terminal, then through the HTTP gateway, service a, service b, and finally service c.
 
@@ -81,7 +104,7 @@ Resonate is used in the HTTP gateway to transition the request flow from an ephe
 
 This request flow is synchronous — that is, the curl request is blocked waiting on the result from the full chain of calls that goes down to `bar()` and propagates back up. The process that made the cURL request prints the result.
 
-### How to run the Await Chain example
+#### How to run the Await Chain example
 
 You'll need 5 separate terminal windows (not including the one running the Resonate Server), one for each service and one to make the cURL request to the gateway.
 
@@ -119,7 +142,7 @@ Send a cURL request:
 curl -X POST http://127.0.0.1:5000/await-chain
 ```
 
-## Detached Chain request flow
+### Detached Chain request flow
 
 The Detached Chain is one where each function plays a role, passing off a result to the next function without waiting on the child invocations.
 
@@ -129,7 +152,7 @@ Resonate transitions the request in the route handler from an ephemeral call to 
 
 However, unlike the Await Chain flow, the each function returns once it has invoked the next function. There is no waiting on the result, and the last function in the chain prints the result.
 
-### How to run the Detached Chain example
+#### How to run the Detached Chain example
 
 You will need 5 separate terminal windows (not including the one running the Resonate Server), one for each service and one to make the cURL request (assuming you don't already have the gateway running or a process for the cURL request from the previous example).
 
@@ -167,7 +190,7 @@ Send the cURL request:
 curl -X POST http://127.0.0.1:5000/detached-chain
 ```
 
-## Fan-out Workflow request flow
+### Fan-out Workflow request flow
 
 The Fan-out Workflow request is one where multiple functions are invoked from a caller function, and the result of each of the invoked functions is combined inside the caller to produce the result.
 
@@ -179,7 +202,7 @@ The `zim()` function then acts as a workflow, invoking `rax()` and `dop()` async
 
 The `zim()` function combines the results of the steps and returns it to the caller where the result is printed.
 
-## How to run the Fan-out Workflow example
+#### How to run the Fan-out Workflow example
 
 You will need 5 separate terminal windows (not including the one running the Resonate Server), one for each service and one to make the cURL request (assuming you don't already have the gateway running or a process for the cURL request from the previous example).
 
@@ -220,37 +243,3 @@ Example cURL request:
 ```shell
 curl -X POST http://127.0.0.1:5000/fan-out-workflow
 ```
-
-## Crash recovery exercise
-
-In this exercise, you will see how Resonate's RFI is durable to process crashes.
-
-First, modify the bar service by addomg a 10 second sleep to the bar function between the RFI call and the yielding of the promise.
-
-```python
-@resonate.register
-def bar(ctx):
-    try:
-        print("running function bar")
-        promise = yield ctx.rfi("baz").options(send_to=poll("service-baz"))
-        yield ctx.sleep(10)
-        result = yield promise
-        return result + 1
-    except Exception as e:
-        print(e)
-        raise
-```
-
-This will give you plenty of time to kill the process before the entire request flow completes.
-
-Restart the bar service.
-
-Now send a cURL request to the foo endpoint.
-
-```shell
-curl -X POST http://127.0.0.1:5000/foo
-```
-
-After you see the output `running function baz` from the baz service, kill the bar service.
-
-Whenever you want, restart the bar service and you will see the request flow complete.
