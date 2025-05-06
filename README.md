@@ -20,43 +20,56 @@ uv sync
 
 This example application requires that a [Resonate Server](https://docs.resonatehq.io/get-started/server-quickstart) is running locally.
 
-# Resonate's remote invocations
+## Resonate's remote invocations
 
 Resonate offers several APIs to invoke a function that is remote to the calling process.
 
-## Ephemeral to Durable
+These APIs can be grouped into two categories:
 
-## Durable
+- Ephemeral to Durable
+- Durable
 
-Resonate API surface
-RPC = Remote Procedure Call
-RFI = stands for Remote Function Invocation.
+### Ephemeral to Durable
 
-With Resonate a Remote Function Invocation returns a Durable Promise. You don't have to block the rest of the function on the result of the function that was invoked. You can yield the result at any point later in the execution. However, yielding the result of the promise (yielding the result of the function that was invoked) does block execution until the result is available. In other words, RFI is an asynchronous API.
+Ephemeral to Durable is when a request flow transitions from a non-durable (ephemeral) flow into a Durable one.
 
-RFC stands for Remote Function Call, it is effectively an RFI but with syntax sugar, and yields the result of the function that was invoked. In other words, it is a synchronous API.
+A very practical example of this is an HTTP gateway / server.
 
-# initialize Resonate
+The request that comes into the HTTP gateway is ephemeral, that is — if either the caller or callee crashes, the request needs to be made again starting from the beginning without any means of resumption.
 
-# this instance uses a Resonate Server for remote promise and task storage
+But inside the request handler, Resonate is used to invoke the next function in the request flow, which transitions the request flow into a durable one — that is, from that point on the request flow can resume if the process(es), in which the request is progressing, crashes.
 
-# this instance uses a poller to receive messages (polls the server for messages)
+Resonate offers two Ephemeral to Durable APIs:
 
-    # id and group enable unicast and anycast
-    # id is the unique identifier for this instance
-    # group is the group name for this instance
+- `resonate.run()` which invokes the function in the same process (execute here).
+- `resonate.rpc()` which invokes a function in a remote process (execute over there).
 
+Each of these APIs provides a handle that can be used to get the result of the invocation.
 
-    # do not try/except here
-    # if this function throws an exception,
-    # it's caught by Resonate and automatically retried
+This example application exclusively showcases the `resonate.rpc()` Ephemeral to Durable API.
 
-route handler
+Within functions that transition from Ephemeral to Durable it is recommended to use `try/except` statements to handle errors.
 
-# create a unique promise id
+### Durable
 
-        # invoke foo with the promise id
-        # .rpc invokes foo at the target
+The Durable APIs are the APIs that are available inside the Durable Call Graph.
+
+There are 3 Durable remote invocation APIs that are available on the Context object that is passed into a function invoked via Resonate.
+
+- `context.rfi()` a fully asynchronous remote invocation API which returns a promise that can be awaited on at any point later on. This is showcased in the Fan-Out Workflow example flow.
+- `context.rfc()` a syntactical sugar API that blocks and returns the result of the invoked function. This is showcased in the Await Chain example flow.
+- `context.detached()` enables the caller to invoke a function and return without waiting on a promise or a result. This is showcased in the Detached Chain example flow.
+
+Within Durable functions you don't need to use `try/except` statements to handle errors because Resonate catches the errors and automatically retries functions that return them.
+
+## Anatomy of an Application Node
+
+Each Application Node must identify itself to the Resonate Server and each remote invocation must specificy a target.
+
+An Application Node has two identities:
+
+- unique ID: this should be unique to all other application nodes, and enables unicast message passing — that is, messages targeted to this ID will only ever attempted to be sent to this ID.
+- group ID: this ID can be shared across several Application Nodes all running the same code. This enables anycast message passing — that is, the first available Application Node in the group will receive the message.
 
 ## Await Chain request flow
 
