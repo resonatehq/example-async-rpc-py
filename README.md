@@ -2,9 +2,9 @@
 
 This example application showcases Resonate's Async RPC capabilities with three different request flows.
 
-- [await chain](./await_chain/README.md)
-- [detached chain](./detached_chain/README.md)
-- [fan out workflow](./fan_out_workflow/README.md)
+- [Await Chain](./await_chain/README.md)
+- [Detached Chain](./detached_chain/README.md)
+- [Fan-out Workflow](./fan_out_workflow/README.md)
 
 To learn more about Resonate as an Async RPC, checkout the [Resonate is also an Async RPC Framework](https://resonatehqio.substack.com/p/resonate-is-also-an-async-rpc-framework) article.
 
