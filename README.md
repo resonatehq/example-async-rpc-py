@@ -62,7 +62,7 @@ There are 3 Durable remote invocation APIs that are available on the Context obj
 
 Within Durable functions you don't need to use `try/except` statements to handle errors because Resonate catches the errors and automatically retries functions that return them.
 
-## Anatomy of an Application Node
+## Application Node identity
 
 Each Application Node must identify itself to the Resonate Server and each remote invocation must specificy a target.
 
